@@ -8,6 +8,7 @@
 </head>
 <body>
 <h1>Welcome to Attendance Register</h1>
+<p>${requestScope.message}</p>
 <h3>Please Sign in</h3>
 <form action="${pageContext.request.contextPath }/LogIn" method="post">
 Username:<input name="username">

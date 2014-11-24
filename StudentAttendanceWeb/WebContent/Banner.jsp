@@ -9,10 +9,10 @@
 <body>
 
 <h3>Welcome ${sessionScope.userName}</h3>
-<p>The current time:<b> ${applicationScope.lastUpdated}</b></p> 
-<p>You are a ${applicationScope.userType}.</p>
+<p>The current time:<b> ${sessionScope.currentTime}</b></p> 
+<p>You are a ${sessionScope.userType}.</p>
 
-<form action="${pageContext.request.contextPath}/login" method="get">
+<form action="${pageContext.request.contextPath}/LogIn" method="get">
 <input type="submit" value="log out"/> 
 </form>
 <hr/>
