@@ -2,7 +2,6 @@ package com.project.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import com.project.data.Attendance;
 import com.project.model.AttendanceManager;
 
@@ -39,23 +37,23 @@ public class MainServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+	
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		
 		HttpSession session = request.getSession(false);
-		String userType = (String) session.getAttribute("userType");
-		if (userType.equals("student"))
-		{
+		String type = (String) session.getAttribute("userType");
+		switch (type) {
+		case "student":
 			showStudentAttendance(request, response);
-		}
-		else if (userType.equals("teacher")) {
-			//user is faculty
-		}
-		else {
-			//error
-			request.setAttribute("message", "Please log in first");
-			RequestDispatcher rd = request.getRequestDispatcher("/Error.jsp");
-			rd.forward(request, response);
+			break;
+		case "faculty":
+			showGeneralStats(request, response);
+			break;
+		default:
+			request.setAttribute("message", "Sorry, we encountered a problem.");
+			request.getRequestDispatcher("/Error.jsp").forward(request,
+					response);
 		}
 	}
 	
@@ -90,4 +88,10 @@ public class MainServlet extends HttpServlet {
 					response);
 		}
 	}
+
+	private void showGeneralStats(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		System.out.println("general stats");
+	}
+
 }

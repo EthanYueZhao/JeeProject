@@ -3,6 +3,10 @@
 	<persistence-unit name="StudentAttendanceJPA"  transaction-type="RESOURCE_LOCAL">
 	    		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<jta-data-source>java:/StudentsAttendanceDS</jta-data-source>
+		<class>com.project.data.Attendance</class>
+		<class>com.project.data.Course</class>
+		<class>com.project.data.Courseschedule</class>
+		<class>com.project.data.User</class>
 		
 		
 		<properties>

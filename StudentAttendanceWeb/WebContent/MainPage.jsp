@@ -9,12 +9,12 @@
 </head>
 <body>
 <%@ include file="Banner.jsp" %>
-<form>
+<form action="${pageContext.request.contextPath }/Main" method="post">
 Please select your course: <select name="course">
 						<option value="none" selected>None</option>
 						
 						<c:forEach items="${sessionScope.courses}" var="cse">
-							<!-- <option value="${cse.getProfid()}">${prof.getFirstname()} ${prof.getLastname()}</option> -->
+							 <option value="${cse.idcourse}">${cse.coursename}</option> 
 						</c:forEach>
 				</select>
 				<button type="submit">Go!</button>

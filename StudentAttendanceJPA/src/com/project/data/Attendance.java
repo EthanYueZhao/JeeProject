@@ -8,11 +8,10 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "attendance")
 @NamedQuery(name="Attendance.findAll", query="SELECT a FROM Attendance a")
 public class Attendance implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	private int idattendance;
 
@@ -60,4 +59,5 @@ public class Attendance implements Serializable {
 	public void setCourseschedule(Courseschedule courseschedule) {
 		this.courseschedule = courseschedule;
 	}
+
 }
