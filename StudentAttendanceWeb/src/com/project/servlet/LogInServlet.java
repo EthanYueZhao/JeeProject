@@ -61,7 +61,9 @@ public class LogInServlet extends HttpServlet {
 		User result = um.getUser(login);
 		if (result != null) {
 			HttpSession session = request.getSession();
+			session.setAttribute("user", result);
 			session.setAttribute("userName", result.getUsername());
+			session.setAttribute("courses", result.getCourses());
 			if (result.getType() == 0) {
 				session.setAttribute("userType", "student");
 			} else {
@@ -75,9 +77,9 @@ public class LogInServlet extends HttpServlet {
 			request.setAttribute("message", "User doesn't exist!");
 			rd=request.getRequestDispatcher("/LogIn.jsp");
 		}
-		rd.forward(request, response);
-
-		
+		rd.forward(request, response);		
 	}
+	
+
 
 }
