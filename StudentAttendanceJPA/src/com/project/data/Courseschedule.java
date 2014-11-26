@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @NamedQuery(name="Courseschedule.findAll", query="SELECT c FROM Courseschedule c")
 @NamedQueries({
-	@NamedQuery(name = "getScheduleFromCourse", query = "Select s From Courseschedule s Where s.course=?1")
+	@NamedQuery(name = "Courseschedule.getScheduleFromCourse", query = "Select s From Courseschedule s Where s.course=?1")
 })
 public class Courseschedule implements Serializable {
 	private static final long serialVersionUID = 1L;

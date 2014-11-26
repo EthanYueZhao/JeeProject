@@ -2,6 +2,7 @@ package com.project.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,13 +10,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import com.project.data.Attendance;
+import com.project.data.User;
 import com.project.model.AttendanceManager;
 
 /**
  * Servlet implementation class MainServlet
  */
-@WebServlet("/MainServlet")
+@WebServlet("/Main")
 public class MainServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -70,8 +73,8 @@ public class MainServlet extends HttpServlet {
 		}
 		else {
 			// user is student
-			String courseSelected = ((String) session.getAttribute("course")).trim();
-			String user = ((String) session.getAttribute("userName")).trim();
+			int courseSelected = Integer.parseInt(request.getParameter("course").trim());
+			User user = (User) session.getAttribute("user");
 			ArrayList<Attendance> attendanceList= instance.getAttendanceHistory(courseSelected, user);
 			if (attendanceList == null) {
 				attendanceSize = 0;
@@ -81,6 +84,7 @@ public class MainServlet extends HttpServlet {
 				attendanceSize = attendanceList.size();
 				attendedNum = instance.getAttendedNum(attendanceList);
 			}
+			session.setAttribute("course", courseSelected);
 			request.setAttribute("attendanceList", attendanceList);
 			request.setAttribute("attendanceSize", attendanceSize);
 			request.setAttribute("attendedNum", attendedNum);
