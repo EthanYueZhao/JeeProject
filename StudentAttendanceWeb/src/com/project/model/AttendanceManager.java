@@ -42,13 +42,8 @@ public class AttendanceManager {
 		queryCourse.setParameter( 1, course);
 		//get the course object
 		Course c = (Course) queryCourse.getSingleResult();
-		
-		TypedQuery<Courseschedule> querySchedule = em.createNamedQuery("Courseschedule.getScheduleFromCourse",
-			Courseschedule.class);
-		//find schedule by course
-		querySchedule.setParameter( 1, c);
-		ArrayList<Courseschedule> shcedule = (ArrayList<Courseschedule>) querySchedule
-		.getResultList();
+		//get the schedule for this course
+		ArrayList<Courseschedule> shcedule = getScheduleByCourse(c);
 		
 		//get attendance for all courses
 		ArrayList<Attendance> attendanceGet = (ArrayList<Attendance>) student.getAttendances();
@@ -69,6 +64,20 @@ public class AttendanceManager {
 		return attendanceReturn;
 	}
 	
+	public ArrayList<Courseschedule> getScheduleByCourse(Course c)
+	{
+		EntityManager em = emf.createEntityManager();
+		
+		TypedQuery<Courseschedule> querySchedule = em.createNamedQuery("Courseschedule.getScheduleFromCourse",
+				Courseschedule.class);
+			//find schedule by course
+			querySchedule.setParameter( 1, c);
+			ArrayList<Courseschedule> shcedule = (ArrayList<Courseschedule>) querySchedule
+			.getResultList();
+		em.close();
+		
+		return shcedule;
+	}
 	public int getAttendedNum(ArrayList<Attendance> attendanceList) {
 		int count = 0;
 		for (Attendance value : attendanceList) {

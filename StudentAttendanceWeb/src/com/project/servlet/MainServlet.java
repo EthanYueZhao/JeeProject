@@ -41,17 +41,39 @@ public class MainServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String userType = (String) getServletContext().getAttribute("userType");
+		
+		HttpSession session = request.getSession(false);
+		String userType = (String) session.getAttribute("userType");
+		if (userType.equals("student"))
+		{
+			showStudentAttendance(request, response);
+		}
+		else if (userType.equals("teacher")) {
+			//user is faculty
+		}
+		else {
+			//error
+			request.setAttribute("message", "Please log in first");
+			RequestDispatcher rd = request.getRequestDispatcher("/Error.jsp");
+			rd.forward(request, response);
+		}
+	}
+	
+	protected void showStudentAttendance(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		int attendedNum = 0;
 		int attendanceSize = 0;
-		
-		HttpSession session = request.getSession();
-		if (userType.equals("0"))
-		{
-			AttendanceManager instance = new AttendanceManager();
+		AttendanceManager instance = new AttendanceManager();
+		HttpSession session = request.getSession(false);
+		if (session == null) {
+			//error
+			request.setAttribute("message", "session timeout");
+			RequestDispatcher rd = request.getRequestDispatcher("/Error.jsp");
+			rd.forward(request, response);
+		}
+		else {
 			// user is student
-			String courseSelected = (request.getParameter("course")).trim();
-			String user = ((String) request.getSession().getAttribute("userName")).trim();
+			String courseSelected = ((String) session.getAttribute("course")).trim();
+			String user = ((String) session.getAttribute("userName")).trim();
 			ArrayList<Attendance> attendanceList= instance.getAttendanceHistory(courseSelected, user);
 			if (attendanceList == null) {
 				attendanceSize = 0;
@@ -61,20 +83,11 @@ public class MainServlet extends HttpServlet {
 				attendanceSize = attendanceList.size();
 				attendedNum = instance.getAttendedNum(attendanceList);
 			}
-			session.setAttribute("attendanceList", attendanceList);
-			session.setAttribute("attendanceSize", attendanceSize);
-			session.setAttribute("attendedNum", attendedNum);
+			request.setAttribute("attendanceList", attendanceList);
+			request.setAttribute("attendanceSize", attendanceSize);
+			request.setAttribute("attendedNum", attendedNum);
 			request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
 					response);
-		}
-		else if (userType.equals("1")) {
-			//user is faculty
-		}
-		else {
-			//error
-			request.setAttribute("message", "Please log in first");
-			RequestDispatcher rd = request.getRequestDispatcher("/Error.jsp");
-			rd.forward(request, response);
 		}
 	}
 }
