@@ -9,7 +9,7 @@
 </head>
 <body>
 <%@ include file="Banner.jsp" %>
-<form>
+<form action="${pageContext.request.contextPath }/Main" method="post">
 Please select your course: <select name="course">
 						<option value="none" selected>None</option>
 						
