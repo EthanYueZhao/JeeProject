@@ -10,8 +10,9 @@
 <%@ include file="Banner.jsp" %>
 You are viewing course ${sessionScope.course }
 <br>
-Here should be the attendance table
-<br>
-<a href="MainPage.jsp">Back to main page</a>
+<br><form action="${pageContext.request.contextPath}/MainServlet" method="post">
+		<input type="submit" name="attend" value="I am here!">
+		<br><br><input type="submit" name="backToMain" value="Back to main page">
+	</form><br>
 </body>
 </html>
