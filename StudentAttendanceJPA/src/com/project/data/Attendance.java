@@ -1,14 +1,14 @@
 package com.project.data;
 
 import java.io.Serializable;
+
 import javax.persistence.*;
 
-import javax.persistence.Entity;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-
 @Entity
-@NamedQuery(name="Attendance.findAll", query="SELECT a FROM Attendance a")
+@NamedQueries({
+	@NamedQuery(name="Attendance.findAll", query="SELECT a FROM Attendance a"),
+	@NamedQuery(name = "Attendance.getAttendanceByUserAndSchedule", query = "Select a From Attendance a Where a.user = :userObj And a.courseschedule = :courseScheduleObj ")
+})
 public class Attendance implements Serializable {
 	private static final long serialVersionUID = 1L;
 

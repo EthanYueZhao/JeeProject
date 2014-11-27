@@ -41,10 +41,11 @@ table#t01 th {
 	<br>
 	<br>
 	<form action="${pageContext.request.contextPath}/Sign" method="post">
-		<input type="submit" name="attend" value="I am here!">
+		<input type="submit" name="attend" value="I am here!" <c:if test="${requestScope.attendanceNotAllowed == 'true'}"><c:out value="disabled='disabled'"/></c:if>>
+		<c:if test="${requestScope.attendanceNotAllowed == 'true'}">You already taken this attendance!</c:if>
+		<c:if test="${requestScope.wrongSchedule == 'true'}">You can only sign attendance on class day!</c:if>
 	</form>
-	<form action="${pageContext.request.contextPath}/MainServlet"
-		method="post">
+	<form action="${pageContext.request.contextPath}/Main" method="post">
 		<c:choose>
 			<c:when
 				test='${(requestScope.attendanceSize == 0)&&(requestScope.attendedNum == 0)}'>

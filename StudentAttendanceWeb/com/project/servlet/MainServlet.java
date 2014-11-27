@@ -1,6 +1,7 @@
 package com.project.servlet;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 import javax.servlet.RequestDispatcher;
@@ -88,8 +89,28 @@ public class MainServlet extends HttpServlet {
 			request.setAttribute("attendanceList", attendanceList);
 			request.setAttribute("attendanceSize", attendanceSize);
 			request.setAttribute("attendedNum", attendedNum);
-			request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
-					response);
+			Attendance att = null;
+			try {
+				att = instance.getAttendance(user, courseSelected);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if (att == null) {
+				// don't have class today
+				request.setAttribute("wrongSchedule", true);
+				request.setAttribute("attendanceNotAllowed", true);
+			}else if(att.getAttendance() == 1){
+				//already signed attendance
+				request.setAttribute("attendanceNotAllowed", true);
+				request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
+						response);
+			}else {
+				//Good request, go ahead
+				request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
+						response);
+			}
 		}
 	}
 

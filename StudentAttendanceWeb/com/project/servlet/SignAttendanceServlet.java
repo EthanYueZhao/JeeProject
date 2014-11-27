@@ -1,10 +1,11 @@
 package com.project.servlet;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.ejb.Schedule;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -57,7 +58,10 @@ public class SignAttendanceServlet extends HttpServlet {
 		ArrayList<Courseschedule> scheduleArray = instance.getScheduleByCourse(courseSelected);
 		//compare the date for allow sign attendance or not
 		for (Courseschedule schedule : scheduleArray) {
-		    if (new Date().equals(schedule.getCoursedate())) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			String current =df.format(new Date());
+			String scheduledDate = df.format(schedule.getCoursedate());
+		    if (current.equals(scheduledDate)) {
 		    	scheduleGet = schedule;
 			}
 		}
@@ -65,7 +69,7 @@ public class SignAttendanceServlet extends HttpServlet {
 		if (scheduleGet != null) {
 			//sign attendance and get feedbackc bool
 			boolean successful = instance.signAttendance(user,scheduleGet);
-			request.setAttribute("attendanceSuccess", successful);
+			request.setAttribute("attendanceNotAllowed", successful);
 			request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
 					response);
 		}else {

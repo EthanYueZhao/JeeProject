@@ -1,14 +1,18 @@
 package com.project.model;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import javax.ejb.Schedule;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import com.project.data.Attendance;
@@ -29,22 +33,66 @@ public class AttendanceManager {
 		}
 	}
 
-	public boolean signAttendance(User userInput,Courseschedule scheduleInput) {
+	public boolean signAttendance(User userInput, Courseschedule scheduleInput) {
 		EntityManager em = emf.createEntityManager();
 		try {
 			EntityTransaction et = em.getTransaction();
 			et.begin();
-			Attendance att = new Attendance();
-			att.setAttendance((byte) 1);	
-			att.setUser(userInput);
-			att.setCourseschedule(scheduleInput);
-			em.persist(att);
+
+			TypedQuery<Attendance> queryAttendance = em.createNamedQuery(
+					"Attendance.getAttendanceByUserAndSchedule",
+					Attendance.class);
+			queryAttendance.setParameter("userObj", userInput);
+			queryAttendance.setParameter("courseScheduleObj", scheduleInput);
+			// get the course object
+			Attendance att = (Attendance) queryAttendance.getSingleResult();
+			att.setAttendance((byte) 1);
+			em.merge(att);
 			et.commit();
 			em.close();
 			return true;
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	public Attendance getAttendance(User userInput, int courseID)
+			throws ParseException {
+		Attendance att = null;
+		EntityManager em = emf.createEntityManager();
+
+		TypedQuery<Course> queryCourse = em.createNamedQuery(
+				"Course.getCoursebyID", Course.class);
+		queryCourse.setParameter(1, courseID);
+		// get the course object
+		Course c = (Course) queryCourse.getSingleResult();
+
+		// get schedule first, by course and current date
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		String currentString = df.format(new Date());
+		Date CurrentDate = df.parse(currentString);
+		TypedQuery<Courseschedule> querySchedule = em.createNamedQuery(
+				"Courseschedule.getScheduleFromCourseIDAndDate",
+				Courseschedule.class);
+		querySchedule.setParameter(1, c);
+		querySchedule.setParameter(2, CurrentDate);
+		Courseschedule scheduleGet = querySchedule.getSingleResult();
+
+		if (scheduleGet != null) {
+			TypedQuery<Attendance> queryAttendance = em.createNamedQuery(
+					"Attendance.getAttendanceByUserAndSchedule",
+					Attendance.class);
+			queryAttendance.setParameter("userObj", userInput);
+			queryAttendance.setParameter("courseScheduleObj", scheduleGet);
+			// get the course object
+			try {
+				att = (Attendance) queryAttendance.getSingleResult();
+			} catch (NoResultException e) {
+				// Ignore this exception, I will handle it in my code
+			}
+		}
+		em.close();
+		return att;
 	}
 
 	public ArrayList<Attendance> getAttendanceHistory(int course, User user) {
@@ -80,13 +128,12 @@ public class AttendanceManager {
 	public ArrayList<Courseschedule> getScheduleByCourse(int courseIn) {
 		EntityManager em = emf.createEntityManager();
 
-		// student this course
 		TypedQuery<Course> queryCourse = em.createNamedQuery(
 				"Course.getCoursebyID", Course.class);
 		queryCourse.setParameter(1, courseIn);
 		// get the course object
 		Course c = (Course) queryCourse.getSingleResult();
-		
+
 		TypedQuery<Courseschedule> querySchedule = em.createNamedQuery(
 				"Courseschedule.getScheduleFromCourse", Courseschedule.class);
 		// find schedule by course
