@@ -37,7 +37,7 @@ public class LogInServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		HttpSession session=request.getSession(false);
+		HttpSession session = request.getSession(false);
 		session.invalidate();
 		request.getRequestDispatcher("/LogIn.jsp").forward(request, response);
 	}
@@ -56,30 +56,32 @@ public class LogInServlet extends HttpServlet {
 		login.setUsername(s1);
 		login.setPassword(s2);
 
-		RequestDispatcher rd=null;
+		RequestDispatcher rd = null;
 		UserManager um = new UserManager();
 		User result = um.getUser(login);
 		if (result != null) {
 			HttpSession session = request.getSession();
-			session.setAttribute("user", result);
 			session.setAttribute("userName", result.getUsername());
-			session.setAttribute("courses", result.getCourses());
 			if (result.getType() == 0) {
 				session.setAttribute("userType", "student");
 			} else {
 				session.setAttribute("userType", "faculty");
 			}
-			
+
 			Date current = Calendar.getInstance().getTime();
 			session.setAttribute("currentTime", current);
-			rd = request.getRequestDispatcher("/MainPage.jsp");
-		}else{
-			request.setAttribute("message", "User doesn't exist!");
-			rd=request.getRequestDispatcher("/LogIn.jsp");
-		}
-		rd.forward(request, response);		
-	}
-	
 
+			
+			request.setAttribute("courses", result.getCourses() );
+			
+			
+			rd = request.getRequestDispatcher("/MainPage.jsp");
+		} else {
+			request.setAttribute("message", "User doesn't exist!");
+			rd = request.getRequestDispatcher("/LogIn.jsp");
+		}
+		rd.forward(request, response);
+
+	}
 
 }
