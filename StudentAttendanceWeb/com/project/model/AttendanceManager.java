@@ -56,6 +56,7 @@ public class AttendanceManager {
 		}
 	}
 
+	// check if have attendance today, for the course and the user
 	public Attendance getAttendance(User userInput, int courseID)
 			throws ParseException {
 		Attendance att = null;
@@ -76,7 +77,13 @@ public class AttendanceManager {
 				Courseschedule.class);
 		querySchedule.setParameter(1, c);
 		querySchedule.setParameter(2, CurrentDate);
-		Courseschedule scheduleGet = querySchedule.getSingleResult();
+		Courseschedule scheduleGet = null;
+		try {
+			// null means no schedule today
+			scheduleGet = querySchedule.getSingleResult();
+		} catch (NoResultException e) {
+			// Ignore this exception, I will handle it in my code
+		}
 
 		if (scheduleGet != null) {
 			TypedQuery<Attendance> queryAttendance = em.createNamedQuery(
@@ -97,6 +104,7 @@ public class AttendanceManager {
 
 	public ArrayList<Attendance> getAttendanceHistory(int course, User user) {
 		EntityManager em = emf.createEntityManager();
+
 		ArrayList<Attendance> attendanceReturn = new ArrayList<Attendance>();
 		// get the student
 		User student = user;
@@ -105,9 +113,23 @@ public class AttendanceManager {
 		// get the schedule for this course
 		ArrayList<Courseschedule> shcedule = getScheduleByCourse(course);
 
+		// Important, clear cache programmatically to update the backend User
+		// Entity
+		// em.getEntityManagerFactory().getCache().evictAll();
 		// get attendance for all courses
-		List<Attendance> attendanceGet = (List<Attendance>) student
-				.getAttendances();
+		// List<Attendance> attendanceGet = (List<Attendance>) student
+		// .getAttendances();
+		List<Attendance> attendanceGet = null;
+		TypedQuery<Attendance> queryAttendanceByUser = em.createNamedQuery(
+				"User.getAllAttendanceForStudent", Attendance.class);
+		queryAttendanceByUser.setParameter("id", student.getIduser());
+		try {
+			attendanceGet = (List<Attendance>) queryAttendanceByUser
+					.getResultList();
+		} catch (NoResultException e) {
+			// Ignore this exception, I will handle it in my code
+		}
+
 		if (attendanceGet.isEmpty()) {
 			attendanceReturn = null;
 		} else {

@@ -5,6 +5,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -44,11 +47,8 @@ public class SignAttendanceServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		//sessionScope.course
 		HttpSession session = request.getSession();
 		AttendanceManager instance = new AttendanceManager();
-//		String courseSelected = ((String) session.getAttribute("course")).trim();
-//		String user = ((String) session.getAttribute("userName")).trim();
 		
 		Courseschedule scheduleGet = null;
 		int courseSelected = (int) session.getAttribute("course");
@@ -69,12 +69,17 @@ public class SignAttendanceServlet extends HttpServlet {
 		if (scheduleGet != null) {
 			//sign attendance and get feedbackc bool
 			boolean successful = instance.signAttendance(user,scheduleGet);
-			request.setAttribute("attendanceNotAllowed", successful);
-			request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
-					response);
+			request.setAttribute("attendanceNotAllowed", successful);	
+			ShowStudentAttendanceHelper helper = new ShowStudentAttendanceHelper();
+			helper.showStudentAttendance(request, response,courseSelected);
+//			request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
+//					response);
+//			Map<String, String[]> params = new HashMap<String, String[]>(request.getParameterMap());
+//			request.getRequestDispatcher("Main").forward(request,
+//					response);
 		}else {
-			request.setAttribute("message", "Sorry, you can only sign attendance on the class day.");
-			request.getRequestDispatcher("/Error.jsp").forward(request,
+			request.setAttribute("errorAttendance", "Sorry, you can only sign attendance on the class day.");
+			request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
 					response);
 		}
 	}

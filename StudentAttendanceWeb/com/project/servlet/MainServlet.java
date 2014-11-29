@@ -22,94 +22,63 @@ import com.project.model.AttendanceManager;
 @WebServlet("/Main")
 public class MainServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public MainServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public MainServlet() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	
+
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		
-		HttpSession session = request.getSession(false);
-		String type = (String) session.getAttribute("userType");
-		switch (type) {
-		case "student":
-			showStudentAttendance(request, response);
-			break;
-		case "faculty":
-			showGeneralStats(request, response);
-			break;
-		default:
-			request.setAttribute("message", "Sorry, we encountered a problem.");
-			request.getRequestDispatcher("/Error.jsp").forward(request,
-					response);
-		}
-	}
-	
-	protected void showStudentAttendance(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		int attendedNum = 0;
-		int attendanceSize = 0;
-		AttendanceManager instance = new AttendanceManager();
-		HttpSession session = request.getSession(false);
-		if (session == null) {
-			//error
-			request.setAttribute("message", "session timeout");
-			RequestDispatcher rd = request.getRequestDispatcher("/Error.jsp");
+
+		//back to the main page
+		if (request.getParameter("backToMain") != null) {
+			RequestDispatcher rd = request
+					.getRequestDispatcher("/MainPage.jsp");
 			rd.forward(request, response);
-		}
-		else {
-			// user is student
-			int courseSelected = Integer.parseInt(request.getParameter("course").trim());
-			User user = (User) session.getAttribute("user");
-			ArrayList<Attendance> attendanceList= instance.getAttendanceHistory(courseSelected, user);
-			if (attendanceList == null) {
-				attendanceSize = 0;
-				attendedNum = 0;
+		}else {//not back to main 
+			String courseString = request.getParameter("course").trim();
+			if (courseString.equals("none")) {
+				request.setAttribute("message", "Please select one course!");
+				request.getRequestDispatcher("/Error.jsp").forward(request,
+						response);
 			}
 			else {
-				attendanceSize = attendanceList.size();
-				attendedNum = instance.getAttendedNum(attendanceList);
-			}
-			session.setAttribute("course", courseSelected);
-			request.setAttribute("attendanceList", attendanceList);
-			request.setAttribute("attendanceSize", attendanceSize);
-			request.setAttribute("attendedNum", attendedNum);
-			Attendance att = null;
-			try {
-				att = instance.getAttendance(user, courseSelected);
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			if (att == null) {
-				// don't have class today
-				request.setAttribute("wrongSchedule", true);
-				request.setAttribute("attendanceNotAllowed", true);
-			}else if(att.getAttendance() == 1){
-				//already signed attendance
-				request.setAttribute("attendanceNotAllowed", true);
-				request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
-						response);
-			}else {
-				//Good request, go ahead
-				request.getRequestDispatcher("/StudentsAttendance.jsp").forward(request,
-						response);
+				HttpSession session = request.getSession(false);
+				String type = (String) session.getAttribute("userType");
+				switch (type) {
+				case "student":
+					int courseSelected = Integer.parseInt(request
+							.getParameter("course").trim());
+					ShowStudentAttendanceHelper helper = new ShowStudentAttendanceHelper();
+					helper.showStudentAttendance(request, response,courseSelected);
+					//showStudentAttendance(request, response);
+					break;
+				case "faculty":
+					showGeneralStats(request, response);
+					break;
+				default:
+					request.setAttribute("message", "Sorry, we encountered a problem.");
+					request.getRequestDispatcher("/Error.jsp").forward(request,
+							response);
+				}
 			}
 		}
 	}
