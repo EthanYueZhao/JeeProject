@@ -3,8 +3,8 @@
 	<name>StudentAttendanceEAR</name>
 	<comment></comment>
 	<projects>
-		<project>StudentAttendanceWeb</project>
 		<project>StudentAttendanceJPA</project>
+		<project>StudentAttendanceWeb</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
