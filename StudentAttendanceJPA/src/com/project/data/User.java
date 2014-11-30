@@ -6,16 +6,13 @@ import javax.persistence.*;
 
 import java.util.List;
 
-
 /**
  * The persistent class for the user database table.
  * 
  */
 @Entity
-@NamedQuery(name="User.findAll", query="SELECT u FROM User u")
-@NamedQueries({
-	@NamedQuery(name = "getUser", query = "Select u From User u Where u.username=?1 and u.password=?2")
-})
+@NamedQuery(name = "User.findAll", query = "SELECT u FROM User u")
+@NamedQueries({ @NamedQuery(name = "getUser", query = "Select u From User u Where u.username=?1 and u.password=?2") })
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -28,12 +25,12 @@ public class User implements Serializable {
 
 	private String username;
 
-	//bi-directional many-to-one association to Attendance
-	@OneToMany(mappedBy="user")
+	// bi-directional many-to-one association to Attendance
+	@OneToMany(mappedBy = "user")
 	private List<Attendance> attendances;
 
-	//bi-directional many-to-many association to Course
-	@ManyToMany(mappedBy="users")
+	// bi-directional many-to-many association to Course
+	@ManyToMany(mappedBy = "users")
 	private List<Course> courses;
 
 	public User() {

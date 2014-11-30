@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>StudentAttendanceEAR</name>
+	<name>StudentAttendanceEAR_1130</name>
 	<comment></comment>
 	<projects>
-		<project>StudentAttendanceJPA</project>
 		<project>StudentAttendanceWeb</project>
-		<project>test</project>
+		<project>StudentAttendanceJPA</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
