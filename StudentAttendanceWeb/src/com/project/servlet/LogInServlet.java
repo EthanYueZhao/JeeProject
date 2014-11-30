@@ -61,7 +61,9 @@ public class LogInServlet extends HttpServlet {
 		User result = um.getUser(login);
 		if (result != null) {
 			HttpSession session = request.getSession();
+			session.setAttribute("user", result);
 			session.setAttribute("userName", result.getUsername());
+			
 			if (result.getType() == 0) {
 				session.setAttribute("userType", "student");
 			} else {
@@ -70,10 +72,8 @@ public class LogInServlet extends HttpServlet {
 
 			Date current = Calendar.getInstance().getTime();
 			session.setAttribute("currentTime", current);
-
 			
-			request.setAttribute("courses", result.getCourses() );
-			
+			session.setAttribute("courses", result.getCourses() );
 			
 			rd = request.getRequestDispatcher("/MainPage.jsp");
 		} else {
