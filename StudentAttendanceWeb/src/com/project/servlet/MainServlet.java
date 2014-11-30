@@ -1,6 +1,7 @@
 package com.project.servlet;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import com.project.data.Attendance;
 import com.project.data.Course;
 import com.project.data.Courseschedule;
 import com.project.data.User;
+import com.project.model.AttendanceManager;
 import com.project.model.UserManager;
 
 /**
@@ -40,6 +42,15 @@ public class MainServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		HttpSession session = request.getSession();
+		if (session.getAttribute("userName") == null) {
+			request.getRequestDispatcher("/login.jsp").forward(request,
+					response);
+			return;
+		}
+		showGeneralAll(request, response);
+
+		return;
 	}
 
 	/**
@@ -48,69 +59,111 @@ public class MainServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		// make sure user is logged in
-		HttpSession session = request.getSession();
-		if (session.getAttribute("userName") == null) {
-			request.getRequestDispatcher("/login.jsp").forward(request,
-					response);
-			return;
-		}
-		RequestDispatcher rd = null;
-		// GET a course or ADD a course - sets new course to work on
-		String command = request.getParameter("submit");
-		try {
-			switch (command) {
-				case "faculty": {
-					int courseId = Integer.parseInt(request.getParameter("course"));
-					UserManager um = new UserManager();
-					Course course = um.getCourse(courseId);
 
-					List<User> users = course.getUsers();
-					List<User> students =new ArrayList<User>();
-					List<Courseschedule> sch = course.getCourseschedules();
-					List<Attendance> newAtt = new ArrayList<Attendance>();
-					
-					for (User user : users) {
-						if(user.getType() == 0){
-							newAtt.clear();
-							for (Courseschedule courseschedule : sch) {
-								List<Attendance> atten = courseschedule.getAttendances();
-								for (Attendance attendance : atten) {
-									if(attendance.getUser().getIduser() == user.getIduser()){
-										newAtt.add(attendance);
-									}
-								}
-							}
-							user.setAttendances(newAtt);
-							students.add(user);
+		//back to the main page
+		if (request.getParameter("backToMain") != null) {
+			RequestDispatcher rd = request
+					.getRequestDispatcher("/MainPage.jsp");
+			rd.forward(request, response);
+		}else {//not back to main 
+			String courseString = request.getParameter("course").trim();
+			if (courseString.equals("none")) {
+				request.setAttribute("message", "Please select one course!");
+				request.getRequestDispatcher("/Error.jsp").forward(request,
+						response);
+			}
+			else {
+				HttpSession session = request.getSession(false);
+				String type = (String) session.getAttribute("userType");
+				switch (type) {
+				case "student":
+					int courseSelected = Integer.parseInt(request
+							.getParameter("course").trim());
+					ShowStudentAttendanceHelper helper = new ShowStudentAttendanceHelper();
+					helper.showStudentAttendance(request, response,courseSelected);
+					//showStudentAttendance(request, response);
+					break;
+				case "faculty":
+					showGeneralAll(request, response);
+					break;
+				default:
+					request.setAttribute("message", "Sorry, we encountered a problem.");
+					request.getRequestDispatcher("/Error.jsp").forward(request,
+							response);
+				}
+			}
+		}
+	}
+	private void showGeneralAll(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		UserManager um = new UserManager();
+		int courseId = Integer.parseInt(request.getParameter("course"));
+		Course course = um.getCourse(courseId);
+		AttendanceManager instance = new AttendanceManager();
+
+		List<User> users = course.getUsers();
+		List<User> students = new ArrayList<User>();
+
+		for (User user : users) {
+			if (user.getType() == 0) {
+				students.add(user);
+			}
+		}
+
+		for (User user : students) {
+			// user is student
+			ArrayList<Attendance> attendanceList = instance
+					.getAttendanceHistory(courseId, user);
+			if (attendanceList != null) {
+				user.setAttendances(attendanceList);
+			}
+		}
+
+		request.setAttribute("courseName",
+				course.getIdcourse() + " " + course.getCoursename());
+		request.setAttribute("courseId", courseId);
+
+		request.setAttribute("students", students);
+
+		request.getRequestDispatcher("/AttendanceGeneral.jsp").forward(request,
+				response);
+		return;
+
+	}
+	private void showGeneral(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		
+		int courseId = Integer.parseInt(request.getParameter("course"));
+		UserManager um = new UserManager();
+		Course course = um.getCourse(courseId);
+
+		List<User> users = course.getUsers();
+		List<User> students =new ArrayList<User>();
+		List<Courseschedule> sch = course.getCourseschedules();
+		List<Attendance> newAtt = new ArrayList<Attendance>();
+		
+		for (User user : users) {
+			if(user.getType() == 0){
+				newAtt.clear();
+				for (Courseschedule courseschedule : sch) {
+					List<Attendance> atten = courseschedule.getAttendances();
+					for (Attendance attendance : atten) {
+						if(attendance.getUser().getIduser() == user.getIduser()){
+							newAtt.add(attendance);
 						}
 					}
-					
-					request.setAttribute("courseName", course.getIdcourse()+" "+course.getCoursename() );
-					request.setAttribute("students", students );
-					
-					rd = request.getRequestDispatcher("/AttendanceGeneral.jsp");
-					rd.forward(request, response);
-
-					return;
 				}
-				case "student": {
-					
-					return;
-				}
-				default: {
-					
-				}
+				user.setAttendances(newAtt);
+				students.add(user);
 			}
-		} catch (Exception e) {
-			if (e.getMessage() == null) {
-				e.printStackTrace(System.out);
-			}
-			request.setAttribute("message", e.getMessage());
-			request.getRequestDispatcher("/error.jsp").forward(request,
-					response);
-			return;
 		}
+		
+		request.setAttribute("courseName", course.getIdcourse()+" "+course.getCoursename() );
+		request.setAttribute("courseId", courseId );
+		request.setAttribute("students", students );
+		
+		request.getRequestDispatcher("/AttendanceGeneral.jsp").forward(request, response);
+		return;
 	}
 
 }

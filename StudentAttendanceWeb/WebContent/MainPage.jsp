@@ -11,13 +11,13 @@
 	<%@ include file="Banner.jsp"%>
 	<form action="${pageContext.request.contextPath }/MainServlet" method="post">
 		Please select your course: <select name="course">
-			<option value="0" selected>None</option>
+			<option value="none" selected>None</option>
 
-			<c:forEach items="${requestScope.courses}" var="course">
+			<c:forEach items="${sessionScope.courses}" var="course">
 				<option value="${course.getIdcourse()}">${course.getCoursename()}</option>
 			</c:forEach>
 		</select>
-		<button type="submit"  name="submit" value="${sessionScope.userType}">Go!</button>
+		<button type="submit">Go!</button>
 	</form>
 </body>
 </html>
